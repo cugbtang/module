@@ -1,0 +1,51 @@
+#网络数据包操作库，可以仿造，捕获和解析大量不同协议类型的数据包
+
+sniff(count=0, store=1, offline=None, prn=None, lfilter=None, L2socket=None, 
+timeout=None, opened_socket=None, stop_filter=None, iface=None, *arg, **karg)
+
+返回PacketList类型的数据包对象；
+
+	count: 			要捕获数据包的总数. 0 表示无限制；
+	store: 			是否要保存捕获的数据包；
+	prn: 			回调函数，会作用于每个数据包
+	             		ex: prn = lambda x: x.summary()
+	lfilter: 		过滤函数，不满足条件的数据包会被丢弃；
+	             		ex: lfilter = lambda x: x.haslayer(Padding)
+	offline: 		从pcap文件中读取数据包；
+	timeout: 		捕获指定时间内的数据包；
+	L2socket: 		通过给定的 L2socket 进行数据捕获；
+	opened_socket:  通过给定的 socket 进行数据捕获；
+	stop_filter: 	过滤函数，满足条件后将结束数据捕获；
+	                 	ex: stop_filter = lambda x: x.haslayer(TCP)
+	iface: 			指定端口或端口数组
+
+注：lfiter 是回调函数,filter 是BPF 字符串
+
+scapy强大地方在于可以通过字段来查看每一个字段信息
+
+
+filter 的规则使用 Berkeley Packet Filter（BPF）语法！
+
+过滤规则有三种类型的限定词，分别为 type，dir，和proto
+1 type： 可以是host，net，port
+
+2 dir 方向限定词：src，dst
+
+	’src foo’, ’dst net 128.3’, ’src or dst port ftp-data’
+	限定数据流的方向；src 192.168.10.11，表示所有从主机192.168.10.11发出的数据包。
+
+3 proto 协议限定词：ether，fddi，ip，arp，rarp，decnet，tcp，udp等等
+
+	’ether src foo’, ’arp net 128.3’, ’tcp port 21’
+
+4 逻辑连接符： and(&&), or(|), not(!)
+
+
+
+TOS包括共8位，包括
+	  3 bit的优先权字段（取值可以从000-111所有值）
+	+ 4 bit的TOS子字段（最小时延、最大吞吐量、最高可靠性和最小费用 Telnet、Rlogin这两个交互应用要求最小的传输时延，FTP文件传输要求最大吞吐量，最高可靠性是指网络管理（SNMP）和路由选择协议。用户网络新闻要求最小费用）
+	+ 1 bit未用位但必须置0。
+
+
+sniff(iface="Realtek PCIe GBE Family Controller",filter="host 192.168.1.130 and port 443",prn=lambda x:x.summary(),count=1)
